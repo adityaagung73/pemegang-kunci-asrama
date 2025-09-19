@@ -58,12 +58,9 @@
                         </div>
                     </div>
                     <div class="flex items-center space-x-3">
-                        <div id="syncStatus" class="text-xs text-gray-500">
-                            <span id="syncIndicator">🟢</span> Online
-                        </div>
                         <button onclick="manualSync()" class="text-green-600 hover:text-green-800 font-medium text-sm flex items-center space-x-1">
                             <span id="syncIcon">🔄</span>
-                            <span>Sync</span>
+                            <span>Sync Data</span>
                         </button>
                         <button onclick="showHome()" class="text-blue-600 hover:text-blue-800 font-medium">
                             🏠 Home
@@ -450,7 +447,6 @@
         // Data Storage
         let keyTransactions = JSON.parse(localStorage.getItem('keyTransactions')) || [];
         let transactionCounter = parseInt(localStorage.getItem('transactionCounter')) || 1;
-        let isOnline = true;
         let lastSyncTime = null;
 
         // Master Key Types Data
@@ -471,10 +467,9 @@
 
         // Load data from Google Sheets
         async function loadDataFromGoogleSheets() {
-            const scriptURL = 'https://script.google.com/macros/s/AKfycbyitawZFLIz-LOK_yF9DIvGVc_inKJ-qO-HEb7IfLGHFBlzoHujlrsf8jNz8Xm5T9UE/exec';
+            const scriptURL = 'https://script.google.com/macros/s/1gmqZRq2lO_zuzVE_IIbWPNUZEIVKkSUm2TzHVC0oJMk/exec';
             
             try {
-                updateSyncStatus('syncing');
                 console.log('📥 Loading data from Google Sheets...');
                 
                 const response = await fetch(scriptURL + '?action=getData', {
@@ -507,38 +502,47 @@
                     
                     saveData();
                     lastSyncTime = new Date();
-                    updateSyncStatus('online');
                     showNotification('✅ Data berhasil disinkronkan dari server!', 'success');
                 } else {
                     console.log('📝 Server response:', result);
-                    updateSyncStatus('online');
                     showNotification('📝 Tidak ada data di server', 'info');
                 }
             } catch (error) {
                 console.error('❌ Error loading data:', error);
-                updateSyncStatus('offline');
-                showNotification('⚠️ Mode offline - menggunakan data lokal', 'info');
-                isOnline = false;
+                showNotification('⚠️ Gagal sinkronisasi - menggunakan data lokal', 'info');
             }
         }
         
         // Manual sync function
         async function manualSync() {
+            // Show sync animation
+            const syncIcon = document.getElementById('syncIcon');
+            syncIcon.classList.add('sync-indicator');
+            
             await loadDataFromGoogleSheets();
             
-            // Update all UI components
+            // Update all UI components including log
             updateActiveKeysList();
             updateKeyLog();
             updateReturnTransactionDropdown();
             populateKeyTypeDropdown();
+            
+            // Re-apply current filters if log section is visible
+            if (!document.getElementById('keyLogSection').classList.contains('hidden')) {
+                filterLog();
+            }
+            
+            // Stop sync animation
+            setTimeout(() => {
+                syncIcon.classList.remove('sync-indicator');
+            }, 1000);
         }
         
         // Auto sync data (load from server)
         async function autoSync() {
-            if (!isOnline) return;
-            
             try {
-                const response = await fetch('https://script.google.com/macros/s/AKfycbyitawZFLIz-LOK_yF9DIvGVc_inKJ-qO-HEb7IfLGHFBlzoHujlrsf8jNz8Xm5T9UE/exec?action=getData');
+                const scriptURL = 'https://script.google.com/macros/s/1gmqZRq2lO_zuzVE_IIbWPNUZEIVKkSUm2TzHVC0oJMk/exec';
+                const response = await fetch(scriptURL + '?action=getData');
                 const result = await response.json();
                 
                 if (result.success && result.data && Array.isArray(result.data)) {
@@ -562,50 +566,22 @@
                         saveData();
                         lastSyncTime = new Date();
                         
-                        // Update UI silently
+                        // Update ALL UI components including log
                         updateActiveKeysList();
                         updateKeyLog();
                         updateReturnTransactionDropdown();
                         populateKeyTypeDropdown();
                         
+                        // Re-apply current filters if log section is visible
+                        if (!document.getElementById('keyLogSection').classList.contains('hidden')) {
+                            filterLog();
+                        }
+                        
                         showNotification('🔄 Data diperbarui otomatis', 'info');
                     }
                 }
-                
-                updateSyncStatus('online');
-                isOnline = true;
             } catch (error) {
                 console.log('🔄 Auto-sync gagal:', error.message);
-                updateSyncStatus('offline');
-                isOnline = false;
-            }
-        }
-        
-        // Update sync status indicator
-        function updateSyncStatus(status) {
-            const indicator = document.getElementById('syncIndicator');
-            const statusText = document.getElementById('syncStatus');
-            const syncIcon = document.getElementById('syncIcon');
-            
-            switch (status) {
-                case 'online':
-                    indicator.textContent = '🟢';
-                    statusText.innerHTML = '<span id="syncIndicator">🟢</span> Online';
-                    syncIcon.textContent = '🔄';
-                    syncIcon.classList.remove('sync-indicator');
-                    break;
-                case 'offline':
-                    indicator.textContent = '🔴';
-                    statusText.innerHTML = '<span id="syncIndicator">🔴</span> Offline';
-                    syncIcon.textContent = '🔄';
-                    syncIcon.classList.remove('sync-indicator');
-                    break;
-                case 'syncing':
-                    indicator.textContent = '🟡';
-                    statusText.innerHTML = '<span id="syncIndicator">🟡</span> Syncing...';
-                    syncIcon.textContent = '🔄';
-                    syncIcon.classList.add('sync-indicator');
-                    break;
             }
         }
 
@@ -665,7 +641,13 @@
         function showKeyLog() {
             hideAllSections();
             document.getElementById('keyLogSection').classList.remove('hidden');
-            updateKeyLog();
+            
+            // Refresh data from server when opening log
+            loadDataFromGoogleSheets().then(() => {
+                updateKeyLog();
+                // Apply any existing filters
+                filterLog();
+            });
         }
 
         function showMasterKeys() {
@@ -863,37 +845,42 @@
 
         // Send data to Google Sheets
         function sendToGoogleSheets(data) {
-            const scriptURL = 'https://script.google.com/macros/s/AKfycbyitawZFLIz-LOK_yF9DIvGVc_inKJ-qO-HEb7IfLGHFBlzoHujlrsf8jNz8Xm5T9UE/exec';
+            const scriptURL = 'https://script.google.com/macros/s/1gmqZRq2lO_zuzVE_IIbWPNUZEIVKkSUm2TzHVC0oJMk/exec';
             
             console.log('🚀 Mengirim data ke Google Sheets:', data);
             
-            // Use FormData for better compatibility with Google Apps Script
-            const formData = new FormData();
-            formData.append('transactionId', data.id || '');
-            formData.append('tanggal', data.tanggal || '');
-            formData.append('jam', data.jam || '');
-            formData.append('namaPemegang', data.namaPemegang || '');
-            formData.append('jabatan', data.jabatan || '');
-            formData.append('jenisKunci', data.jenisKunci || '');
-            formData.append('jenisKunciNama', data.jenisKunciNama || '');
-            formData.append('gedung', data.gedung || '');
-            formData.append('lantai', data.lantai || '');
-            formData.append('nomorKamar', data.nomorKamar || '');
-            formData.append('kodeKunci', data.kodeKunci || '');
-            formData.append('keperluan', data.keperluan || '');
-            formData.append('status', data.status || '');
-            formData.append('picPenyerahan', data.picPenyerahan || '');
-            formData.append('catatan', data.catatan || '');
-            formData.append('kondisi', data.kondisi || '');
-            formData.append('originalTransactionId', data.originalTransactionId || '');
-            formData.append('type', data.type || 'borrow');
+            // Prepare data for Google Sheets
+            const payload = {
+                action: 'addData',
+                transactionId: data.id || '',
+                tanggal: data.tanggal || '',
+                jam: data.jam || '',
+                namaPemegang: data.namaPemegang || '',
+                jabatan: data.jabatan || '',
+                jenisKunci: data.jenisKunci || '',
+                jenisKunciNama: data.jenisKunciNama || '',
+                gedung: data.gedung || '',
+                lantai: data.lantai || '',
+                nomorKamar: data.nomorKamar || '',
+                kodeKunci: data.kodeKunci || '',
+                keperluan: data.keperluan || '',
+                status: data.status || '',
+                picPenyerahan: data.picPenyerahan || '',
+                catatan: data.catatan || '',
+                kondisi: data.kondisi || '',
+                originalTransactionId: data.originalTransactionId || '',
+                type: data.type || 'borrow'
+            };
             
             // Show loading indicator
             const loadingMsg = showNotification('📤 Mengirim data ke spreadsheet...', 'info');
             
             fetch(scriptURL, {
                 method: 'POST',
-                body: formData
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(payload)
             })
             .then(response => {
                 console.log('📊 Response status:', response.status);
@@ -912,23 +899,17 @@
                 if (result.includes('success') || result.includes('Success') || result.includes('berhasil')) {
                     console.log('✅ Data berhasil dikirim ke spreadsheet!');
                     showNotification('✅ Data berhasil dikirim ke spreadsheet!', 'success');
-                    updateSyncStatus('online');
-                    isOnline = true;
                 } else if (result.includes('error') || result.includes('Error')) {
                     console.warn('⚠️ Error dari server:', result);
                     showNotification('❌ Error dari server: ' + result, 'error');
                 } else {
                     console.log('📝 Response tidak jelas, tapi tidak ada error:', result);
                     showNotification('📤 Data terkirim (response: ' + result.substring(0, 50) + '...)', 'success');
-                    updateSyncStatus('online');
-                    isOnline = true;
                 }
             })
             .catch(error => {
                 console.error('❌ Error mengirim data ke Google Sheets:', error);
                 hideNotification();
-                updateSyncStatus('offline');
-                isOnline = false;
                 
                 // More specific error messages
                 if (error.message.includes('Failed to fetch')) {
@@ -979,14 +960,10 @@
             .then(result => {
                 console.log('🔄 Metode JSON berhasil:', result);
                 showNotification('✅ Data berhasil dikirim dengan metode alternatif!', 'success');
-                updateSyncStatus('online');
-                isOnline = true;
             })
             .catch(fallbackError => {
                 console.error('❌ Metode alternatif juga gagal:', fallbackError);
                 showNotification('❌ Semua metode pengiriman gagal. Data tersimpan lokal.', 'error');
-                updateSyncStatus('offline');
-                isOnline = false;
             });
         }
 
@@ -1241,17 +1218,14 @@
             const gedungFilter = document.getElementById('logGedung').value;
             const statusFilter = document.getElementById('logStatus').value;
             
-            const tbody = document.getElementById('logTableBody');
-            const rows = tbody.querySelectorAll('tr');
+            // If no filters are set, show all data
+            if (!dateFrom && !dateTo && !gedungFilter && !statusFilter) {
+                updateKeyLog();
+                return;
+            }
             
-            rows.forEach(row => {
-                const transaction = keyTransactions.find(t => 
-                    row.textContent.includes(t.namaPemegang) && 
-                    row.textContent.includes(t.jenisKunciNama)
-                );
-                
-                if (!transaction) return;
-                
+            // Filter the transactions data
+            let filteredTransactions = keyTransactions.filter(transaction => {
                 let show = true;
                 
                 if (dateFrom && transaction.tanggal < dateFrom) show = false;
@@ -1259,8 +1233,44 @@
                 if (gedungFilter && transaction.gedung !== gedungFilter) show = false;
                 if (statusFilter && transaction.status !== statusFilter) show = false;
                 
-                row.style.display = show ? '' : 'none';
+                return show;
             });
+            
+            // Update table with filtered data
+            const tbody = document.getElementById('logTableBody');
+            const sortedTransactions = [...filteredTransactions].sort((a, b) => {
+                const dateA = new Date(a.tanggal + ' ' + a.jam);
+                const dateB = new Date(b.tanggal + ' ' + b.jam);
+                return dateB - dateA;
+            });
+            
+            tbody.innerHTML = sortedTransactions.map(transaction => `
+                <tr class="hover:bg-gray-50">
+                    <td class="px-4 py-3 text-sm">
+                        <div>${transaction.tanggal}</div>
+                        <div class="text-gray-500">${transaction.jam}</div>
+                    </td>
+                    <td class="px-4 py-3 text-sm font-medium">${transaction.namaPemegang}</td>
+                    <td class="px-4 py-3 text-sm">${transaction.jabatan}</td>
+                    <td class="px-4 py-3 text-sm">
+                        <div>${transaction.jenisKunciNama}</div>
+                        ${transaction.nomorKamar ? `<div class="text-blue-600 text-xs">Kamar ${transaction.nomorKamar}</div>` : ''}
+                        ${transaction.kodeKunci ? `<div class="text-gray-500 text-xs font-mono">Kode: ${transaction.kodeKunci}</div>` : ''}
+                    </td>
+                    <td class="px-4 py-3 text-sm">${transaction.keperluan}</td>
+                    <td class="px-4 py-3">
+                        <span class="status-${transaction.status.toLowerCase()} text-xs font-medium px-2 py-1 rounded-full">
+                            ${transaction.status}
+                        </span>
+                    </td>
+                    <td class="px-4 py-3 text-sm">${transaction.picPenyerahan}</td>
+                </tr>
+            `).join('');
+            
+            // Show count of filtered results
+            if (filteredTransactions.length !== keyTransactions.length) {
+                showNotification(`📊 Menampilkan ${filteredTransactions.length} dari ${keyTransactions.length} transaksi`, 'info');
+            }
         }
 
         // Toggle custom building input
@@ -1541,5 +1551,5 @@
         // Initialize app when page loads
         document.addEventListener('DOMContentLoaded', initApp);
     </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9817da5187ddfcfb',t:'MTc1ODI3MjAwOC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9818081d2797ce59',t:'MTc1ODI3Mzg4NC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
