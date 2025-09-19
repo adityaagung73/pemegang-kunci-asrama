@@ -16,6 +16,8 @@
         .status-dikembalikan { background: linear-gradient(135deg, #d1fae5, #10b981); }
         .status-hilang { background: linear-gradient(135deg, #fee2e2, #ef4444); }
         .status-rusak { background: linear-gradient(135deg, #fed7aa, #f97316); }
+        .sync-indicator { animation: spin 1s linear infinite; }
+        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
     </style>
 </head>
 <body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen">
@@ -55,9 +57,18 @@
                             <p class="text-sm text-gray-500">Andalusia & Hijaz</p>
                         </div>
                     </div>
-                    <button onclick="showHome()" class="text-blue-600 hover:text-blue-800 font-medium">
-                        🏠 Home
-                    </button>
+                    <div class="flex items-center space-x-3">
+                        <div id="syncStatus" class="text-xs text-gray-500">
+                            <span id="syncIndicator">🟢</span> Online
+                        </div>
+                        <button onclick="manualSync()" class="text-green-600 hover:text-green-800 font-medium text-sm flex items-center space-x-1">
+                            <span id="syncIcon">🔄</span>
+                            <span>Sync</span>
+                        </button>
+                        <button onclick="showHome()" class="text-blue-600 hover:text-blue-800 font-medium">
+                            🏠 Home
+                        </button>
+                    </div>
                 </div>
             </div>
         </header>
@@ -439,6 +450,8 @@
         // Data Storage
         let keyTransactions = JSON.parse(localStorage.getItem('keyTransactions')) || [];
         let transactionCounter = parseInt(localStorage.getItem('transactionCounter')) || 1;
+        let isOnline = true;
+        let lastSyncTime = null;
 
         // Master Key Types Data
         let masterKeyTypes = JSON.parse(localStorage.getItem('masterKeyTypes')) || [
@@ -456,19 +469,165 @@
         
         let editingKeyId = null;
 
-        // Initialize app
-        function initApp() {
-            setCurrentDateTime();
-            updateBuildingOptions();
-            populateKeyTypeDropdown();
-            populateMasterKeysTable();
+        // Load data from Google Sheets
+        async function loadDataFromGoogleSheets() {
+            const scriptURL = 'https://script.google.com/macros/s/AKfycbyitawZFLIz-LOK_yF9DIvGVc_inKJ-qO-HEb7IfLGHFBlzoHujlrsf8jNz8Xm5T9UE/exec';
+            
+            try {
+                updateSyncStatus('syncing');
+                console.log('📥 Loading data from Google Sheets...');
+                
+                const response = await fetch(scriptURL + '?action=getData', {
+                    method: 'GET',
+                    headers: {
+                        'Cache-Control': 'no-cache'
+                    }
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+                
+                const result = await response.json();
+                
+                if (result.success && result.data && Array.isArray(result.data)) {
+                    console.log('✅ Data berhasil dimuat:', result.data.length, 'transaksi');
+                    
+                    // Update local data with server data
+                    keyTransactions = result.data;
+                    
+                    // Update transaction counter
+                    if (keyTransactions.length > 0) {
+                        const maxId = Math.max(...keyTransactions
+                            .map(t => parseInt(t.id.replace('TXN', '')))
+                            .filter(id => !isNaN(id))
+                        );
+                        transactionCounter = maxId + 1;
+                    }
+                    
+                    saveData();
+                    lastSyncTime = new Date();
+                    updateSyncStatus('online');
+                    showNotification('✅ Data berhasil disinkronkan dari server!', 'success');
+                } else {
+                    console.log('📝 Server response:', result);
+                    updateSyncStatus('online');
+                    showNotification('📝 Tidak ada data di server', 'info');
+                }
+            } catch (error) {
+                console.error('❌ Error loading data:', error);
+                updateSyncStatus('offline');
+                showNotification('⚠️ Mode offline - menggunakan data lokal', 'info');
+                isOnline = false;
+            }
+        }
+        
+        // Manual sync function
+        async function manualSync() {
+            await loadDataFromGoogleSheets();
+            
+            // Update all UI components
             updateActiveKeysList();
             updateKeyLog();
             updateReturnTransactionDropdown();
             populateKeyTypeDropdown();
+        }
+        
+        // Auto sync data (load from server)
+        async function autoSync() {
+            if (!isOnline) return;
+            
+            try {
+                const response = await fetch('https://script.google.com/macros/s/AKfycbyitawZFLIz-LOK_yF9DIvGVc_inKJ-qO-HEb7IfLGHFBlzoHujlrsf8jNz8Xm5T9UE/exec?action=getData');
+                const result = await response.json();
+                
+                if (result.success && result.data && Array.isArray(result.data)) {
+                    const serverDataLength = result.data.length;
+                    const localDataLength = keyTransactions.length;
+                    
+                    // Only update if server has different data
+                    if (serverDataLength !== localDataLength) {
+                        console.log('🔄 Auto-sync: Data server berbeda, memperbarui...');
+                        keyTransactions = result.data;
+                        
+                        // Update counter
+                        if (keyTransactions.length > 0) {
+                            const maxId = Math.max(...keyTransactions
+                                .map(t => parseInt(t.id.replace('TXN', '')))
+                                .filter(id => !isNaN(id))
+                            );
+                            transactionCounter = maxId + 1;
+                        }
+                        
+                        saveData();
+                        lastSyncTime = new Date();
+                        
+                        // Update UI silently
+                        updateActiveKeysList();
+                        updateKeyLog();
+                        updateReturnTransactionDropdown();
+                        populateKeyTypeDropdown();
+                        
+                        showNotification('🔄 Data diperbarui otomatis', 'info');
+                    }
+                }
+                
+                updateSyncStatus('online');
+                isOnline = true;
+            } catch (error) {
+                console.log('🔄 Auto-sync gagal:', error.message);
+                updateSyncStatus('offline');
+                isOnline = false;
+            }
+        }
+        
+        // Update sync status indicator
+        function updateSyncStatus(status) {
+            const indicator = document.getElementById('syncIndicator');
+            const statusText = document.getElementById('syncStatus');
+            const syncIcon = document.getElementById('syncIcon');
+            
+            switch (status) {
+                case 'online':
+                    indicator.textContent = '🟢';
+                    statusText.innerHTML = '<span id="syncIndicator">🟢</span> Online';
+                    syncIcon.textContent = '🔄';
+                    syncIcon.classList.remove('sync-indicator');
+                    break;
+                case 'offline':
+                    indicator.textContent = '🔴';
+                    statusText.innerHTML = '<span id="syncIndicator">🔴</span> Offline';
+                    syncIcon.textContent = '🔄';
+                    syncIcon.classList.remove('sync-indicator');
+                    break;
+                case 'syncing':
+                    indicator.textContent = '🟡';
+                    statusText.innerHTML = '<span id="syncIndicator">🟡</span> Syncing...';
+                    syncIcon.textContent = '🔄';
+                    syncIcon.classList.add('sync-indicator');
+                    break;
+            }
+        }
+
+        // Initialize app
+        function initApp() {
+            setCurrentDateTime();
+            
+            // Load data from Google Sheets first
+            loadDataFromGoogleSheets().then(() => {
+                updateBuildingOptions();
+                populateKeyTypeDropdown();
+                populateMasterKeysTable();
+                updateActiveKeysList();
+                updateKeyLog();
+                updateReturnTransactionDropdown();
+            });
             
             // Set current date/time every minute
             setInterval(setCurrentDateTime, 60000);
+            
+            // Auto-sync every 30 seconds
+            setInterval(autoSync, 30000);
         }
 
         // Set current date and time
@@ -753,25 +912,31 @@
                 if (result.includes('success') || result.includes('Success') || result.includes('berhasil')) {
                     console.log('✅ Data berhasil dikirim ke spreadsheet!');
                     showNotification('✅ Data berhasil dikirim ke spreadsheet!', 'success');
+                    updateSyncStatus('online');
+                    isOnline = true;
                 } else if (result.includes('error') || result.includes('Error')) {
                     console.warn('⚠️ Error dari server:', result);
                     showNotification('❌ Error dari server: ' + result, 'error');
                 } else {
                     console.log('📝 Response tidak jelas, tapi tidak ada error:', result);
                     showNotification('📤 Data terkirim (response: ' + result.substring(0, 50) + '...)', 'success');
+                    updateSyncStatus('online');
+                    isOnline = true;
                 }
             })
             .catch(error => {
                 console.error('❌ Error mengirim data ke Google Sheets:', error);
                 hideNotification();
+                updateSyncStatus('offline');
+                isOnline = false;
                 
                 // More specific error messages
                 if (error.message.includes('Failed to fetch')) {
-                    showNotification('❌ Gagal terhubung ke server. Periksa koneksi internet!', 'error');
+                    showNotification('❌ Gagal terhubung ke server. Data tersimpan lokal.', 'error');
                 } else if (error.message.includes('HTTP error')) {
                     showNotification('❌ Server error: ' + error.message, 'error');
                 } else {
-                    showNotification('❌ Gagal kirim ke spreadsheet: ' + error.message, 'error');
+                    showNotification('❌ Gagal kirim ke spreadsheet. Data tersimpan lokal.', 'error');
                 }
                 
                 // Try alternative method with JSON
@@ -814,10 +979,14 @@
             .then(result => {
                 console.log('🔄 Metode JSON berhasil:', result);
                 showNotification('✅ Data berhasil dikirim dengan metode alternatif!', 'success');
+                updateSyncStatus('online');
+                isOnline = true;
             })
             .catch(fallbackError => {
                 console.error('❌ Metode alternatif juga gagal:', fallbackError);
                 showNotification('❌ Semua metode pengiriman gagal. Data tersimpan lokal.', 'error');
+                updateSyncStatus('offline');
+                isOnline = false;
             });
         }
 
@@ -1372,5 +1541,5 @@
         // Initialize app when page loads
         document.addEventListener('DOMContentLoaded', initApp);
     </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'981756acb7cdf87b',t:'MTc1ODI2NjYxNi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9817da5187ddfcfb',t:'MTc1ODI3MjAwOC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
