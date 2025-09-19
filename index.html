@@ -1,0 +1,1376 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pemegang Kunci Asrama - Andalusia & Hijaz</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        .card-hover { transition: all 0.3s ease; }
+        .card-hover:hover { transform: translateY(-2px); box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+        .fade-in { animation: fadeIn 0.5s ease-in; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .status-dipinjam { background: linear-gradient(135deg, #fef3c7, #fbbf24); }
+        .status-dikembalikan { background: linear-gradient(135deg, #d1fae5, #10b981); }
+        .status-hilang { background: linear-gradient(135deg, #fee2e2, #ef4444); }
+        .status-rusak { background: linear-gradient(135deg, #fed7aa, #f97316); }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen">
+    <!-- Welcome Screen -->
+    <div id="welcomeScreen" class="min-h-screen flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full text-center fade-in">
+            <div class="mb-6">
+                <div class="w-20 h-20 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full mx-auto mb-4 flex items-center justify-center">
+                    <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-3.586l6.879-6.879A6 6 0 0119 9z"></path>
+                    </svg>
+                </div>
+                <h1 class="text-2xl font-bold text-gray-800 mb-2">Pemegang Kunci Asrama</h1>
+                <p class="text-lg text-blue-600 font-semibold">Andalusia & Hijaz</p>
+            </div>
+            <p class="text-gray-600 mb-8 leading-relaxed">Selamat datang di Aplikasi Pemegang Kunci Asrama. Kelola dan pantau penggunaan kunci dengan mudah dan efisien.</p>
+            <button onclick="showHome()" class="w-full bg-gradient-to-r from-blue-500 to-indigo-600 text-white py-3 px-6 rounded-xl font-semibold hover:from-blue-600 hover:to-indigo-700 transition-all duration-300 transform hover:scale-105">
+                Mulai
+            </button>
+        </div>
+    </div>
+
+    <!-- Main App -->
+    <div id="mainApp" class="hidden min-h-screen">
+        <!-- Header -->
+        <header class="bg-white shadow-lg border-b border-gray-200">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex justify-between items-center py-4">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center">
+                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-3.586l6.879-6.879A6 6 0 0119 9z"></path>
+                            </svg>
+                        </div>
+                        <div>
+                            <h1 class="text-xl font-bold text-gray-800">Pemegang Kunci Asrama</h1>
+                            <p class="text-sm text-gray-500">Andalusia & Hijaz</p>
+                        </div>
+                    </div>
+                    <button onclick="showHome()" class="text-blue-600 hover:text-blue-800 font-medium">
+                        🏠 Home
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Content Area -->
+        <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <!-- Home Menu -->
+            <div id="homeMenu" class="fade-in">
+                <h2 class="text-3xl font-bold text-gray-800 mb-8 text-center">Menu Utama</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <div onclick="showActiveKeys()" class="bg-white rounded-xl shadow-lg p-6 cursor-pointer card-hover">
+                        <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mb-4">
+                            <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                        </div>
+                        <h3 class="text-lg font-semibold text-gray-800 mb-2">Daftar Pemegang Kunci</h3>
+                        <p class="text-gray-600 text-sm">Lihat kunci yang sedang dipinjam</p>
+                    </div>
+
+                    <div onclick="showKeyTransfer()" class="bg-white rounded-xl shadow-lg p-6 cursor-pointer card-hover">
+                        <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-4">
+                            <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path>
+                            </svg>
+                        </div>
+                        <h3 class="text-lg font-semibold text-gray-800 mb-2">Serah Terima Kunci</h3>
+                        <p class="text-gray-600 text-sm">Input pinjam & kembalikan kunci</p>
+                    </div>
+
+                    <div onclick="showKeyLog()" class="bg-white rounded-xl shadow-lg p-6 cursor-pointer card-hover">
+                        <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mb-4">
+                            <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                            </svg>
+                        </div>
+                        <h3 class="text-lg font-semibold text-gray-800 mb-2">Log Kunci</h3>
+                        <p class="text-gray-600 text-sm">Rekap semua transaksi kunci</p>
+                    </div>
+
+                    <div onclick="showMasterKeys()" class="bg-white rounded-xl shadow-lg p-6 cursor-pointer card-hover">
+                        <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center mb-4">
+                            <svg class="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 011-1h1m-1 1v1m0 0h1m-1 0v1"></path>
+                            </svg>
+                        </div>
+                        <h3 class="text-lg font-semibold text-gray-800 mb-2">Master Jenis Kunci</h3>
+                        <p class="text-gray-600 text-sm">Daftar referensi jenis kunci</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Active Keys Section -->
+            <div id="activeKeysSection" class="hidden fade-in">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold text-gray-800">Daftar Pemegang Kunci Aktif</h2>
+                    <button onclick="showHome()" class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition-colors">
+                        Kembali
+                    </button>
+                </div>
+
+                <!-- Filters -->
+                <div class="bg-white rounded-xl shadow-lg p-6 mb-6">
+                    <h3 class="text-lg font-semibold mb-4">Filter Cepat</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <select id="filterGedung" onchange="filterActiveKeys()" class="border border-gray-300 rounded-lg px-3 py-2">
+                            <option value="">Semua Gedung</option>
+                            <option value="Andalusia">Andalusia</option>
+                            <option value="Hijaz">Hijaz</option>
+                        </select>
+                        <select id="filterKategori" onchange="filterActiveKeys()" class="border border-gray-300 rounded-lg px-3 py-2">
+                            <option value="">Semua Kategori</option>
+                            <option value="Gerbang">Gerbang</option>
+                            <option value="Kamar Musyrif">Kamar Musyrif</option>
+                        </select>
+                        <select id="filterLantai" onchange="filterActiveKeys()" class="border border-gray-300 rounded-lg px-3 py-2">
+                            <option value="">Semua Lantai</option>
+                            <option value="1">Lantai 1</option>
+                            <option value="2">Lantai 2</option>
+                            <option value="3">Lantai 3</option>
+                            <option value="4">Lantai 4</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Active Keys List -->
+                <div id="activeKeysList" class="space-y-4">
+                    <!-- Will be populated by JavaScript -->
+                </div>
+            </div>
+
+            <!-- Key Transfer Section -->
+            <div id="keyTransferSection" class="hidden fade-in">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold text-gray-800">Serah Terima Kunci</h2>
+                    <button onclick="showHome()" class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition-colors">
+                        Kembali
+                    </button>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <!-- Borrow Form -->
+                    <div class="bg-white rounded-xl shadow-lg p-6">
+                        <h3 class="text-xl font-semibold text-green-600 mb-6">📝 Form Pinjam Kunci</h3>
+                        <form id="borrowForm" onsubmit="borrowKey(event)">
+                            <div class="space-y-4">
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Tanggal</label>
+                                        <input type="date" id="borrowDate" class="w-full border border-gray-300 rounded-lg px-3 py-2" readonly>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Jam</label>
+                                        <input type="time" id="borrowTime" class="w-full border border-gray-300 rounded-lg px-3 py-2" readonly>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Nama Pemegang *</label>
+                                    <input type="text" id="borrowName" required class="w-full border border-gray-300 rounded-lg px-3 py-2" placeholder="Masukkan nama pemegang">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Jabatan/Status *</label>
+                                    <select id="borrowPosition" required class="w-full border border-gray-300 rounded-lg px-3 py-2">
+                                        <option value="">Pilih Jabatan</option>
+                                        <option value="Kabid">Kabid</option>
+                                        <option value="Kasie">Kasie</option>
+                                        <option value="Staf">Staf</option>
+                                        <option value="Musyrif">Musyrif</option>
+                                        <option value="Lainnya">Lainnya</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Jenis Kunci *</label>
+                                    <div class="border border-gray-300 rounded-lg p-3 max-h-48 overflow-y-auto">
+                                        <div id="keyTypeCheckboxes" class="space-y-2">
+                                            <!-- Will be populated by JavaScript -->
+                                        </div>
+                                    </div>
+                                </div>
+                                <div id="roomNumbersDiv" class="hidden">
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Nomor Kamar untuk Kamar Musyrif *</label>
+                                    <div id="roomNumberInputs" class="space-y-2">
+                                        <!-- Will be populated by JavaScript -->
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Keperluan *</label>
+                                    <input type="text" id="borrowPurpose" required class="w-full border border-gray-300 rounded-lg px-3 py-2" placeholder="Contoh: akses harian, kegiatan, dll">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">PIC Penyerahan *</label>
+                                    <input type="text" id="borrowPIC" required class="w-full border border-gray-300 rounded-lg px-3 py-2" placeholder="Nama petugas yang menyerahkan">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Catatan</label>
+                                    <textarea id="borrowNotes" class="w-full border border-gray-300 rounded-lg px-3 py-2" rows="2" placeholder="Catatan tambahan (opsional)"></textarea>
+                                </div>
+                            </div>
+                            <button type="submit" class="w-full mt-6 bg-green-500 text-white py-3 rounded-lg font-semibold hover:bg-green-600 transition-colors">
+                                📤 Kirim Data Pinjam
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- Return Form -->
+                    <div class="bg-white rounded-xl shadow-lg p-6">
+                        <h3 class="text-xl font-semibold text-blue-600 mb-6">🔄 Form Pengembalian Kunci</h3>
+                        <form id="returnForm" onsubmit="returnKey(event)">
+                            <div class="space-y-4">
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Tanggal</label>
+                                        <input type="date" id="returnDate" class="w-full border border-gray-300 rounded-lg px-3 py-2" readonly>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Jam</label>
+                                        <input type="time" id="returnTime" class="w-full border border-gray-300 rounded-lg px-3 py-2" readonly>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Pilih Transaksi Aktif *</label>
+                                    <select id="returnTransaction" required onchange="fillReturnDetails()" class="w-full border border-gray-300 rounded-lg px-3 py-2">
+                                        <option value="">Pilih transaksi yang akan dikembalikan</option>
+                                    </select>
+                                </div>
+                                <div id="returnDetails" class="hidden bg-gray-50 p-4 rounded-lg">
+                                    <h4 class="font-medium text-gray-700 mb-2">Detail Peminjaman:</h4>
+                                    <div id="returnDetailsContent"></div>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Kondisi Saat Kembali *</label>
+                                    <select id="returnCondition" required class="w-full border border-gray-300 rounded-lg px-3 py-2">
+                                        <option value="">Pilih Kondisi</option>
+                                        <option value="Baik">Baik</option>
+                                        <option value="Rusak">Rusak</option>
+                                        <option value="Hilang">Hilang</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">PIC Penerima *</label>
+                                    <input type="text" id="returnPIC" required class="w-full border border-gray-300 rounded-lg px-3 py-2" placeholder="Nama petugas yang menerima">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Catatan</label>
+                                    <textarea id="returnNotes" class="w-full border border-gray-300 rounded-lg px-3 py-2" rows="2" placeholder="Catatan pengembalian (opsional)"></textarea>
+                                </div>
+                            </div>
+                            <button type="submit" class="w-full mt-6 bg-blue-500 text-white py-3 rounded-lg font-semibold hover:bg-blue-600 transition-colors">
+                                🔄 Kirim Pengembalian
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Key Log Section -->
+            <div id="keyLogSection" class="hidden fade-in">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold text-gray-800">Log Kunci (Rekap Transaksi)</h2>
+                    <button onclick="showHome()" class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition-colors">
+                        Kembali
+                    </button>
+                </div>
+
+                <!-- Log Filters -->
+                <div class="bg-white rounded-xl shadow-lg p-6 mb-6">
+                    <h3 class="text-lg font-semibold mb-4">Filter Log</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Dari Tanggal</label>
+                            <input type="date" id="logDateFrom" onchange="filterLog()" class="w-full border border-gray-300 rounded-lg px-3 py-2">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Sampai Tanggal</label>
+                            <input type="date" id="logDateTo" onchange="filterLog()" class="w-full border border-gray-300 rounded-lg px-3 py-2">
+                        </div>
+                        <select id="logGedung" onchange="filterLog()" class="border border-gray-300 rounded-lg px-3 py-2">
+                            <option value="">Semua Gedung</option>
+                            <option value="Andalusia">Andalusia</option>
+                            <option value="Hijaz">Hijaz</option>
+                        </select>
+                        <select id="logStatus" onchange="filterLog()" class="border border-gray-300 rounded-lg px-3 py-2">
+                            <option value="">Semua Status</option>
+                            <option value="Dipinjam">Dipinjam</option>
+                            <option value="Dikembalikan">Dikembalikan</option>
+                            <option value="Hilang">Hilang</option>
+                            <option value="Rusak">Rusak</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Log Table -->
+                <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Tanggal/Jam</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Nama</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Jabatan</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Jenis Kunci</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Keperluan</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">PIC</th>
+                                </tr>
+                            </thead>
+                            <tbody id="logTableBody" class="divide-y divide-gray-200">
+                                <!-- Will be populated by JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Master Keys Section -->
+            <div id="masterKeysSection" class="hidden fade-in">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold text-gray-800">Master Jenis Kunci</h2>
+                    <div class="flex space-x-2">
+                        <button onclick="showAddKeyForm()" class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors">
+                            ➕ Tambah Kunci
+                        </button>
+                        <button onclick="showHome()" class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition-colors">
+                            Kembali
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Add/Edit Key Form -->
+                <div id="keyFormSection" class="hidden bg-white rounded-xl shadow-lg p-6 mb-6">
+                    <h3 id="keyFormTitle" class="text-xl font-semibold text-gray-800 mb-4">Tambah Jenis Kunci Baru</h3>
+                    <form id="keyForm" onsubmit="saveKeyType(event)">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">ID Kunci *</label>
+                                <input type="text" id="keyId" required class="w-full border border-gray-300 rounded-lg px-3 py-2" placeholder="Contoh: KMA5">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Nama Jenis Kunci *</label>
+                                <input type="text" id="keyName" required class="w-full border border-gray-300 rounded-lg px-3 py-2" placeholder="Contoh: Kamar Musyrif - Gedung Andalusia Lantai 5">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Gedung *</label>
+                                <div class="flex space-x-2">
+                                    <select id="keyGedung" required onchange="toggleCustomGedung()" class="flex-1 border border-gray-300 rounded-lg px-3 py-2">
+                                        <option value="">Pilih Gedung</option>
+                                        <option value="Andalusia">Andalusia</option>
+                                        <option value="Hijaz">Hijaz</option>
+                                        <option value="custom">+ Tambah Gedung Baru</option>
+                                    </select>
+                                    <input type="text" id="customGedung" placeholder="Nama gedung baru" class="hidden flex-1 border border-gray-300 rounded-lg px-3 py-2">
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Lantai</label>
+                                <input type="text" id="keyLantai" class="w-full border border-gray-300 rounded-lg px-3 py-2" placeholder="Contoh: 1, 2, 3, 4 atau - untuk gerbang">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Stok *</label>
+                                <input type="number" id="keyStok" required min="1" class="w-full border border-gray-300 rounded-lg px-3 py-2" placeholder="Jumlah kunci fisik">
+                            </div>
+                            <div class="md:col-span-2">
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Keterangan</label>
+                                <input type="text" id="keyKeterangan" class="w-full border border-gray-300 rounded-lg px-3 py-2" placeholder="Deskripsi kunci">
+                            </div>
+                        </div>
+                        <div class="flex justify-end space-x-2 mt-6">
+                            <button type="button" onclick="cancelKeyForm()" class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition-colors">
+                                Batal
+                            </button>
+                            <button type="submit" id="saveKeyBtn" class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors">
+                                Simpan
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">ID</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Nama Jenis Kunci</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Gedung</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Lantai</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Stok</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Keterangan</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="masterKeysTableBody" class="divide-y divide-gray-200">
+                                <!-- Will be populated by JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Notification -->
+    <div id="notification" class="fixed top-4 right-4 z-50 hidden">
+        <div class="bg-white border-l-4 border-green-500 rounded-lg shadow-lg p-4 max-w-sm">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <svg class="w-5 h-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                    </svg>
+                </div>
+                <div class="ml-3">
+                    <p id="notificationText" class="text-sm font-medium text-gray-900"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Data Storage
+        let keyTransactions = JSON.parse(localStorage.getItem('keyTransactions')) || [];
+        let transactionCounter = parseInt(localStorage.getItem('transactionCounter')) || 1;
+
+        // Master Key Types Data
+        let masterKeyTypes = JSON.parse(localStorage.getItem('masterKeyTypes')) || [
+            { id: 'GTA', name: 'Gerbang Asrama Andalusia', gedung: 'Andalusia', lantai: '-', stok: 2, keterangan: 'Gerbang utama asrama Andalusia' },
+            { id: 'GTH', name: 'Gerbang Asrama Hijaz', gedung: 'Hijaz', lantai: '-', stok: 2, keterangan: 'Gerbang utama asrama Hijaz' },
+            { id: 'KMH1', name: 'Kamar Musyrif – Gedung Hijaz Lantai 1', gedung: 'Hijaz', lantai: '1', stok: 3, keterangan: 'Kamar musyrif lantai 1' },
+            { id: 'KMH2', name: 'Kamar Musyrif – Gedung Hijaz Lantai 2', gedung: 'Hijaz', lantai: '2', stok: 3, keterangan: 'Kamar musyrif lantai 2' },
+            { id: 'KMH3', name: 'Kamar Musyrif – Gedung Hijaz Lantai 3', gedung: 'Hijaz', lantai: '3', stok: 3, keterangan: 'Kamar musyrif lantai 3' },
+            { id: 'KMH4', name: 'Kamar Musyrif – Gedung Hijaz Lantai 4', gedung: 'Hijaz', lantai: '4', stok: 3, keterangan: 'Kamar musyrif lantai 4' },
+            { id: 'KMA1', name: 'Kamar Musyrif – Gedung Andalusia Lantai 1', gedung: 'Andalusia', lantai: '1', stok: 3, keterangan: 'Kamar musyrif lantai 1' },
+            { id: 'KMA2', name: 'Kamar Musyrif – Gedung Andalusia Lantai 2', gedung: 'Andalusia', lantai: '2', stok: 3, keterangan: 'Kamar musyrif lantai 2' },
+            { id: 'KMA3', name: 'Kamar Musyrif – Gedung Andalusia Lantai 3', gedung: 'Andalusia', lantai: '3', stok: 3, keterangan: 'Kamar musyrif lantai 3' },
+            { id: 'KMA4', name: 'Kamar Musyrif – Gedung Andalusia Lantai 4', gedung: 'Andalusia', lantai: '4', stok: 3, keterangan: 'Kamar musyrif lantai 4' }
+        ];
+        
+        let editingKeyId = null;
+
+        // Initialize app
+        function initApp() {
+            setCurrentDateTime();
+            updateBuildingOptions();
+            populateKeyTypeDropdown();
+            populateMasterKeysTable();
+            updateActiveKeysList();
+            updateKeyLog();
+            updateReturnTransactionDropdown();
+            populateKeyTypeDropdown();
+            
+            // Set current date/time every minute
+            setInterval(setCurrentDateTime, 60000);
+        }
+
+        // Set current date and time
+        function setCurrentDateTime() {
+            const now = new Date();
+            const date = now.toISOString().split('T')[0];
+            const time = now.toTimeString().split(' ')[0].substring(0, 5);
+            
+            document.getElementById('borrowDate').value = date;
+            document.getElementById('borrowTime').value = time;
+            document.getElementById('returnDate').value = date;
+            document.getElementById('returnTime').value = time;
+        }
+
+        // Navigation functions
+        function showHome() {
+            hideAllSections();
+            document.getElementById('welcomeScreen').classList.add('hidden');
+            document.getElementById('mainApp').classList.remove('hidden');
+            document.getElementById('homeMenu').classList.remove('hidden');
+        }
+
+        function showActiveKeys() {
+            hideAllSections();
+            document.getElementById('activeKeysSection').classList.remove('hidden');
+            updateActiveKeysList();
+        }
+
+        function showKeyTransfer() {
+            hideAllSections();
+            document.getElementById('keyTransferSection').classList.remove('hidden');
+            updateReturnTransactionDropdown();
+        }
+
+        function showKeyLog() {
+            hideAllSections();
+            document.getElementById('keyLogSection').classList.remove('hidden');
+            updateKeyLog();
+        }
+
+        function showMasterKeys() {
+            hideAllSections();
+            document.getElementById('masterKeysSection').classList.remove('hidden');
+        }
+
+        function hideAllSections() {
+            const sections = ['homeMenu', 'activeKeysSection', 'keyTransferSection', 'keyLogSection', 'masterKeysSection'];
+            sections.forEach(section => {
+                document.getElementById(section).classList.add('hidden');
+            });
+        }
+
+        // Populate key type checkboxes
+        function populateKeyTypeDropdown() {
+            const container = document.getElementById('keyTypeCheckboxes');
+            container.innerHTML = '';
+            
+            masterKeyTypes.forEach(keyType => {
+                const remainingStock = getRemainingStock(keyType.id);
+                const isAvailable = remainingStock > 0;
+                
+                const div = document.createElement('div');
+                div.className = 'flex items-center justify-between';
+                div.innerHTML = `
+                    <div class="flex items-center">
+                        <input type="checkbox" id="key_${keyType.id}" value="${keyType.id}" 
+                               onchange="toggleRoomNumbers()" 
+                               ${!isAvailable ? 'disabled' : ''}
+                               class="mr-2 rounded border-gray-300 text-blue-600 focus:ring-blue-500 ${!isAvailable ? 'opacity-50' : ''}">
+                        <label for="key_${keyType.id}" class="text-sm ${!isAvailable ? 'text-gray-400' : 'text-gray-700'} cursor-pointer">
+                            ${keyType.name}
+                        </label>
+                    </div>
+                    <span class="text-xs ${remainingStock > 0 ? 'text-green-600' : 'text-red-600'} font-medium">
+                        Sisa: ${remainingStock}/${keyType.stok}
+                    </span>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        // Toggle room number fields
+        function toggleRoomNumbers() {
+            const checkboxes = document.querySelectorAll('#keyTypeCheckboxes input[type="checkbox"]:checked');
+            const roomNumbersDiv = document.getElementById('roomNumbersDiv');
+            const roomNumberInputs = document.getElementById('roomNumberInputs');
+            
+            // Clear existing inputs
+            roomNumberInputs.innerHTML = '';
+            
+            let hasMusyrifRoom = false;
+            
+            checkboxes.forEach(checkbox => {
+                const keyType = masterKeyTypes.find(k => k.id === checkbox.value);
+                if (keyType && keyType.name.includes('Kamar Musyrif')) {
+                    hasMusyrifRoom = true;
+                    
+                    const div = document.createElement('div');
+                    div.innerHTML = `
+                        <label class="block text-sm font-medium text-gray-600 mb-1">${keyType.name}</label>
+                        <input type="text" id="room_${keyType.id}" required 
+                               class="w-full border border-gray-300 rounded-lg px-3 py-2" 
+                               placeholder="Contoh: 101, 201A">
+                    `;
+                    roomNumberInputs.appendChild(div);
+                }
+            });
+            
+            if (hasMusyrifRoom) {
+                roomNumbersDiv.classList.remove('hidden');
+            } else {
+                roomNumbersDiv.classList.add('hidden');
+            }
+        }
+
+        // Get remaining stock for a key type
+        function getRemainingStock(keyTypeId) {
+            const keyType = masterKeyTypes.find(k => k.id === keyTypeId);
+            if (!keyType) return 0;
+            
+            const borrowedCount = keyTransactions.filter(transaction => 
+                transaction.jenisKunci === keyTypeId && 
+                transaction.status === 'Dipinjam'
+            ).length;
+            
+            return keyType.stok - borrowedCount;
+        }
+
+        // Check if key is available
+        function isKeyAvailable(keyTypeId, roomNumber = '') {
+            // For Kamar Musyrif, check specific room availability
+            if (roomNumber) {
+                return !keyTransactions.some(transaction => 
+                    transaction.jenisKunci === keyTypeId && 
+                    transaction.nomorKamar === roomNumber && 
+                    transaction.status === 'Dipinjam'
+                );
+            }
+            
+            // For other keys, check stock availability
+            return getRemainingStock(keyTypeId) > 0;
+        }
+
+        // Borrow key function
+        function borrowKey(event) {
+            event.preventDefault();
+            
+            const checkboxes = document.querySelectorAll('#keyTypeCheckboxes input[type="checkbox"]:checked');
+            
+            if (checkboxes.length === 0) {
+                showNotification('Pilih minimal satu jenis kunci!', 'error');
+                return;
+            }
+            
+            const selectedKeys = [];
+            
+            // Process each selected key
+            checkboxes.forEach(checkbox => {
+                const keyTypeId = checkbox.value;
+                const keyType = masterKeyTypes.find(k => k.id === keyTypeId);
+                let roomNumber = '';
+                
+                // Get room number if it's a Musyrif room
+                if (keyType.name.includes('Kamar Musyrif')) {
+                    const roomInput = document.getElementById(`room_${keyTypeId}`);
+                    roomNumber = roomInput ? roomInput.value : '';
+                    
+                    if (!roomNumber) {
+                        showNotification(`Nomor kamar untuk ${keyType.name} harus diisi!`, 'error');
+                        return;
+                    }
+                }
+                
+                // Check availability
+                if (!isKeyAvailable(keyTypeId, roomNumber)) {
+                    if (roomNumber) {
+                        showNotification(`Kunci ${keyType.name} (Kamar ${roomNumber}) sedang dipinjam!`, 'error');
+                    } else {
+                        showNotification(`Stok kunci ${keyType.name} sudah habis!`, 'error');
+                    }
+                    return;
+                }
+                
+                selectedKeys.push({
+                    keyTypeId,
+                    keyType,
+                    roomNumber
+                });
+            });
+            
+            // Create transactions for each selected key
+            selectedKeys.forEach(({ keyTypeId, keyType, roomNumber }) => {
+                // Generate unique key code
+                const timestamp = Date.now();
+                const random = Math.floor(Math.random() * 1000);
+                const kodeKunci = `${keyTypeId}-${roomNumber || 'MAIN'}-${timestamp}${random}`;
+                
+                const transaction = {
+                    id: 'TXN' + String(transactionCounter).padStart(6, '0'),
+                    tanggal: document.getElementById('borrowDate').value,
+                    jam: document.getElementById('borrowTime').value,
+                    namaPemegang: document.getElementById('borrowName').value,
+                    jabatan: document.getElementById('borrowPosition').value,
+                    jenisKunci: keyTypeId,
+                    jenisKunciNama: keyType.name,
+                    gedung: keyType.gedung,
+                    lantai: keyType.lantai,
+                    nomorKamar: roomNumber,
+                    kodeKunci: kodeKunci,
+                    keperluan: document.getElementById('borrowPurpose').value,
+                    status: 'Dipinjam',
+                    picPenyerahan: document.getElementById('borrowPIC').value,
+                    catatan: document.getElementById('borrowNotes').value,
+                    type: 'borrow'
+                };
+                
+                // Send to Google Sheets
+                sendToGoogleSheets(transaction);
+                
+                keyTransactions.push(transaction);
+                transactionCounter++;
+            });
+            
+            saveData();
+            resetBorrowForm();
+            updateActiveKeysList();
+            updateKeyLog();
+            updateReturnTransactionDropdown();
+            populateKeyTypeDropdown();
+            
+            showNotification(`${selectedKeys.length} kunci berhasil dipinjamkan dan data terkirim ke spreadsheet!`);
+        }
+
+        // Send data to Google Sheets
+        function sendToGoogleSheets(data) {
+            const scriptURL = 'https://script.google.com/macros/s/AKfycbyitawZFLIz-LOK_yF9DIvGVc_inKJ-qO-HEb7IfLGHFBlzoHujlrsf8jNz8Xm5T9UE/exec';
+            
+            console.log('🚀 Mengirim data ke Google Sheets:', data);
+            
+            // Use FormData for better compatibility with Google Apps Script
+            const formData = new FormData();
+            formData.append('transactionId', data.id || '');
+            formData.append('tanggal', data.tanggal || '');
+            formData.append('jam', data.jam || '');
+            formData.append('namaPemegang', data.namaPemegang || '');
+            formData.append('jabatan', data.jabatan || '');
+            formData.append('jenisKunci', data.jenisKunci || '');
+            formData.append('jenisKunciNama', data.jenisKunciNama || '');
+            formData.append('gedung', data.gedung || '');
+            formData.append('lantai', data.lantai || '');
+            formData.append('nomorKamar', data.nomorKamar || '');
+            formData.append('kodeKunci', data.kodeKunci || '');
+            formData.append('keperluan', data.keperluan || '');
+            formData.append('status', data.status || '');
+            formData.append('picPenyerahan', data.picPenyerahan || '');
+            formData.append('catatan', data.catatan || '');
+            formData.append('kondisi', data.kondisi || '');
+            formData.append('originalTransactionId', data.originalTransactionId || '');
+            formData.append('type', data.type || 'borrow');
+            
+            // Show loading indicator
+            const loadingMsg = showNotification('📤 Mengirim data ke spreadsheet...', 'info');
+            
+            fetch(scriptURL, {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => {
+                console.log('📊 Response status:', response.status);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.text();
+            })
+            .then(result => {
+                console.log('✅ Response dari Google Sheets:', result);
+                
+                // Hide loading message
+                hideNotification();
+                
+                // Check if response indicates success
+                if (result.includes('success') || result.includes('Success') || result.includes('berhasil')) {
+                    console.log('✅ Data berhasil dikirim ke spreadsheet!');
+                    showNotification('✅ Data berhasil dikirim ke spreadsheet!', 'success');
+                } else if (result.includes('error') || result.includes('Error')) {
+                    console.warn('⚠️ Error dari server:', result);
+                    showNotification('❌ Error dari server: ' + result, 'error');
+                } else {
+                    console.log('📝 Response tidak jelas, tapi tidak ada error:', result);
+                    showNotification('📤 Data terkirim (response: ' + result.substring(0, 50) + '...)', 'success');
+                }
+            })
+            .catch(error => {
+                console.error('❌ Error mengirim data ke Google Sheets:', error);
+                hideNotification();
+                
+                // More specific error messages
+                if (error.message.includes('Failed to fetch')) {
+                    showNotification('❌ Gagal terhubung ke server. Periksa koneksi internet!', 'error');
+                } else if (error.message.includes('HTTP error')) {
+                    showNotification('❌ Server error: ' + error.message, 'error');
+                } else {
+                    showNotification('❌ Gagal kirim ke spreadsheet: ' + error.message, 'error');
+                }
+                
+                // Try alternative method with JSON
+                console.log('🔄 Mencoba metode alternatif dengan JSON...');
+                tryJSONMethod(data, scriptURL);
+            });
+        }
+        
+        // Alternative method using JSON
+        function tryJSONMethod(data, scriptURL) {
+            const payload = {
+                transactionId: data.id || '',
+                tanggal: data.tanggal || '',
+                jam: data.jam || '',
+                namaPemegang: data.namaPemegang || '',
+                jabatan: data.jabatan || '',
+                jenisKunci: data.jenisKunci || '',
+                jenisKunciNama: data.jenisKunciNama || '',
+                gedung: data.gedung || '',
+                lantai: data.lantai || '',
+                nomorKamar: data.nomorKamar || '',
+                kodeKunci: data.kodeKunci || '',
+                keperluan: data.keperluan || '',
+                status: data.status || '',
+                picPenyerahan: data.picPenyerahan || '',
+                catatan: data.catatan || '',
+                kondisi: data.kondisi || '',
+                originalTransactionId: data.originalTransactionId || '',
+                type: data.type || 'borrow'
+            };
+            
+            fetch(scriptURL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(payload)
+            })
+            .then(response => response.text())
+            .then(result => {
+                console.log('🔄 Metode JSON berhasil:', result);
+                showNotification('✅ Data berhasil dikirim dengan metode alternatif!', 'success');
+            })
+            .catch(fallbackError => {
+                console.error('❌ Metode alternatif juga gagal:', fallbackError);
+                showNotification('❌ Semua metode pengiriman gagal. Data tersimpan lokal.', 'error');
+            });
+        }
+
+        // Return key function
+        function returnKey(event) {
+            event.preventDefault();
+            
+            const transactionId = document.getElementById('returnTransaction').value;
+            const condition = document.getElementById('returnCondition').value;
+            
+            // Find original transaction
+            const originalTransaction = keyTransactions.find(t => t.id === transactionId);
+            if (!originalTransaction) {
+                showNotification('Transaksi tidak ditemukan!', 'error');
+                return;
+            }
+            
+            // Update original transaction status
+            let newStatus = 'Dikembalikan';
+            if (condition === 'Hilang') newStatus = 'Hilang';
+            if (condition === 'Rusak') newStatus = 'Rusak';
+            
+            originalTransaction.status = newStatus;
+            
+            // Create return transaction record
+            const returnTransaction = {
+                id: 'TXN' + String(transactionCounter).padStart(6, '0'),
+                tanggal: document.getElementById('returnDate').value,
+                jam: document.getElementById('returnTime').value,
+                namaPemegang: originalTransaction.namaPemegang,
+                jabatan: originalTransaction.jabatan,
+                jenisKunci: originalTransaction.jenisKunci,
+                jenisKunciNama: originalTransaction.jenisKunciNama,
+                gedung: originalTransaction.gedung,
+                lantai: originalTransaction.lantai,
+                nomorKamar: originalTransaction.nomorKamar,
+                kodeKunci: originalTransaction.kodeKunci,
+                keperluan: 'Pengembalian - ' + originalTransaction.keperluan,
+                status: newStatus,
+                picPenyerahan: document.getElementById('returnPIC').value,
+                catatan: document.getElementById('returnNotes').value,
+                kondisi: condition,
+                originalTransactionId: transactionId,
+                type: 'return'
+            };
+            
+            // Send return data to Google Sheets
+            sendToGoogleSheets(returnTransaction);
+            
+            keyTransactions.push(returnTransaction);
+            transactionCounter++;
+            
+            saveData();
+            resetReturnForm();
+            updateActiveKeysList();
+            updateKeyLog();
+            updateReturnTransactionDropdown();
+            populateKeyTypeDropdown();
+            
+            showNotification('Kunci berhasil dikembalikan dan data terkirim ke spreadsheet!');
+        }
+
+        // Fill return transaction dropdown
+        function updateReturnTransactionDropdown() {
+            const dropdown = document.getElementById('returnTransaction');
+            dropdown.innerHTML = '<option value="">Pilih transaksi yang akan dikembalikan</option>';
+            
+            const activeTransactions = keyTransactions.filter(t => t.status === 'Dipinjam' && t.type === 'borrow');
+            
+            activeTransactions.forEach(transaction => {
+                const option = document.createElement('option');
+                option.value = transaction.id;
+                option.textContent = `${transaction.namaPemegang} - ${transaction.jenisKunciNama} ${transaction.nomorKamar ? '(Kamar ' + transaction.nomorKamar + ')' : ''}`;
+                dropdown.appendChild(option);
+            });
+        }
+
+        // Fill return details
+        function fillReturnDetails() {
+            const transactionId = document.getElementById('returnTransaction').value;
+            const detailsDiv = document.getElementById('returnDetails');
+            const contentDiv = document.getElementById('returnDetailsContent');
+            
+            if (!transactionId) {
+                detailsDiv.classList.add('hidden');
+                return;
+            }
+            
+            const transaction = keyTransactions.find(t => t.id === transactionId);
+            if (transaction) {
+                contentDiv.innerHTML = `
+                    <p><strong>Nama:</strong> ${transaction.namaPemegang}</p>
+                    <p><strong>Jabatan:</strong> ${transaction.jabatan}</p>
+                    <p><strong>Jenis Kunci:</strong> ${transaction.jenisKunciNama}</p>
+                    ${transaction.nomorKamar ? `<p><strong>Nomor Kamar:</strong> ${transaction.nomorKamar}</p>` : ''}
+                    <p><strong>Keperluan:</strong> ${transaction.keperluan}</p>
+                    <p><strong>Waktu Pinjam:</strong> ${transaction.tanggal} ${transaction.jam}</p>
+                    <p><strong>PIC Penyerahan:</strong> ${transaction.picPenyerahan}</p>
+                `;
+                detailsDiv.classList.remove('hidden');
+            }
+        }
+
+        // Update active keys list
+        function updateActiveKeysList() {
+            const container = document.getElementById('activeKeysList');
+            const activeTransactions = keyTransactions.filter(t => t.status === 'Dipinjam' && t.type === 'borrow');
+            
+            if (activeTransactions.length === 0) {
+                container.innerHTML = `
+                    <div class="bg-white rounded-xl shadow-lg p-8 text-center">
+                        <div class="w-16 h-16 bg-gray-100 rounded-full mx-auto mb-4 flex items-center justify-center">
+                            <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-3.586l6.879-6.879A6 6 0 0119 9z"></path>
+                            </svg>
+                        </div>
+                        <h3 class="text-lg font-medium text-gray-900 mb-2">Tidak Ada Kunci yang Dipinjam</h3>
+                        <p class="text-gray-500">Semua kunci sudah dikembalikan</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = activeTransactions.map(transaction => {
+                const remainingStock = getRemainingStock(transaction.jenisKunci);
+                const keyType = masterKeyTypes.find(k => k.id === transaction.jenisKunci);
+                const totalStock = keyType ? keyType.stok : 0;
+                
+                return `
+                <div class="bg-white rounded-xl shadow-lg p-6 card-hover">
+                    <div class="flex justify-between items-start mb-4">
+                        <div class="flex-1">
+                            <h3 class="text-lg font-semibold text-gray-800">${transaction.namaPemegang}</h3>
+                            <p class="text-sm text-gray-600">${transaction.jabatan}</p>
+                        </div>
+                        <div class="text-right">
+                            <span class="status-dipinjam text-xs font-medium px-3 py-1 rounded-full text-yellow-800 block mb-1">
+                                ${transaction.status}
+                            </span>
+                            <span class="text-xs ${remainingStock > 0 ? 'text-green-600' : 'text-red-600'} font-medium">
+                                Sisa: ${remainingStock}/${totalStock}
+                            </span>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                        <div>
+                            <p class="text-sm text-gray-500">Jenis Kunci</p>
+                            <p class="font-medium">${transaction.jenisKunciNama}</p>
+                            ${transaction.nomorKamar ? `<p class="text-sm text-blue-600">Kamar ${transaction.nomorKamar}</p>` : ''}
+                            ${transaction.kodeKunci ? `<p class="text-xs text-gray-500 font-mono bg-gray-100 px-2 py-1 rounded mt-1">Kode: ${transaction.kodeKunci}</p>` : ''}
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-500">Waktu Ambil</p>
+                            <p class="font-medium">${transaction.tanggal} ${transaction.jam}</p>
+                        </div>
+                    </div>
+                    <div class="mb-4">
+                        <p class="text-sm text-gray-500">Keperluan</p>
+                        <p class="font-medium">${transaction.keperluan}</p>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <p class="text-sm text-gray-500">PIC Penyerahan</p>
+                            <p class="font-medium">${transaction.picPenyerahan}</p>
+                        </div>
+                        <button onclick="quickReturn('${transaction.id}')" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors text-sm">
+                            🔄 Kembalikan
+                        </button>
+                    </div>
+                </div>
+                `;
+            }).join('');
+        }
+
+        // Quick return function
+        function quickReturn(transactionId) {
+            showKeyTransfer();
+            document.getElementById('returnTransaction').value = transactionId;
+            fillReturnDetails();
+        }
+
+        // Filter active keys
+        function filterActiveKeys() {
+            const gedungFilter = document.getElementById('filterGedung').value;
+            const kategoriFilter = document.getElementById('filterKategori').value;
+            const lantaiFilter = document.getElementById('filterLantai').value;
+            
+            const container = document.getElementById('activeKeysList');
+            const cards = container.querySelectorAll('.bg-white');
+            
+            cards.forEach(card => {
+                const transaction = keyTransactions.find(t => 
+                    card.textContent.includes(t.namaPemegang) && 
+                    card.textContent.includes(t.jenisKunciNama)
+                );
+                
+                if (!transaction) return;
+                
+                let show = true;
+                
+                if (gedungFilter && transaction.gedung !== gedungFilter) show = false;
+                if (kategoriFilter) {
+                    const isGerbang = transaction.jenisKunciNama.includes('Gerbang');
+                    const isKamarMusyrif = transaction.jenisKunciNama.includes('Kamar Musyrif');
+                    
+                    if (kategoriFilter === 'Gerbang' && !isGerbang) show = false;
+                    if (kategoriFilter === 'Kamar Musyrif' && !isKamarMusyrif) show = false;
+                }
+                if (lantaiFilter && transaction.lantai !== lantaiFilter) show = false;
+                
+                card.style.display = show ? 'block' : 'none';
+            });
+        }
+
+        // Update key log
+        function updateKeyLog() {
+            const tbody = document.getElementById('logTableBody');
+            const sortedTransactions = [...keyTransactions].sort((a, b) => {
+                const dateA = new Date(a.tanggal + ' ' + a.jam);
+                const dateB = new Date(b.tanggal + ' ' + b.jam);
+                return dateB - dateA;
+            });
+            
+            tbody.innerHTML = sortedTransactions.map(transaction => `
+                <tr class="hover:bg-gray-50">
+                    <td class="px-4 py-3 text-sm">
+                        <div>${transaction.tanggal}</div>
+                        <div class="text-gray-500">${transaction.jam}</div>
+                    </td>
+                    <td class="px-4 py-3 text-sm font-medium">${transaction.namaPemegang}</td>
+                    <td class="px-4 py-3 text-sm">${transaction.jabatan}</td>
+                    <td class="px-4 py-3 text-sm">
+                        <div>${transaction.jenisKunciNama}</div>
+                        ${transaction.nomorKamar ? `<div class="text-blue-600 text-xs">Kamar ${transaction.nomorKamar}</div>` : ''}
+                        ${transaction.kodeKunci ? `<div class="text-gray-500 text-xs font-mono">Kode: ${transaction.kodeKunci}</div>` : ''}
+                    </td>
+                    <td class="px-4 py-3 text-sm">${transaction.keperluan}</td>
+                    <td class="px-4 py-3">
+                        <span class="status-${transaction.status.toLowerCase()} text-xs font-medium px-2 py-1 rounded-full">
+                            ${transaction.status}
+                        </span>
+                    </td>
+                    <td class="px-4 py-3 text-sm">${transaction.picPenyerahan}</td>
+                </tr>
+            `).join('');
+        }
+
+        // Filter log
+        function filterLog() {
+            const dateFrom = document.getElementById('logDateFrom').value;
+            const dateTo = document.getElementById('logDateTo').value;
+            const gedungFilter = document.getElementById('logGedung').value;
+            const statusFilter = document.getElementById('logStatus').value;
+            
+            const tbody = document.getElementById('logTableBody');
+            const rows = tbody.querySelectorAll('tr');
+            
+            rows.forEach(row => {
+                const transaction = keyTransactions.find(t => 
+                    row.textContent.includes(t.namaPemegang) && 
+                    row.textContent.includes(t.jenisKunciNama)
+                );
+                
+                if (!transaction) return;
+                
+                let show = true;
+                
+                if (dateFrom && transaction.tanggal < dateFrom) show = false;
+                if (dateTo && transaction.tanggal > dateTo) show = false;
+                if (gedungFilter && transaction.gedung !== gedungFilter) show = false;
+                if (statusFilter && transaction.status !== statusFilter) show = false;
+                
+                row.style.display = show ? '' : 'none';
+            });
+        }
+
+        // Toggle custom building input
+        function toggleCustomGedung() {
+            const gedungSelect = document.getElementById('keyGedung');
+            const customInput = document.getElementById('customGedung');
+            
+            if (gedungSelect.value === 'custom') {
+                customInput.classList.remove('hidden');
+                customInput.required = true;
+                gedungSelect.classList.add('hidden');
+            } else {
+                customInput.classList.add('hidden');
+                customInput.required = false;
+                gedungSelect.classList.remove('hidden');
+            }
+        }
+
+        // Master key management functions
+        function showAddKeyForm() {
+            document.getElementById('keyFormSection').classList.remove('hidden');
+            document.getElementById('keyFormTitle').textContent = 'Tambah Jenis Kunci Baru';
+            document.getElementById('saveKeyBtn').textContent = 'Simpan';
+            document.getElementById('keyForm').reset();
+            document.getElementById('customGedung').classList.add('hidden');
+            document.getElementById('keyGedung').classList.remove('hidden');
+            editingKeyId = null;
+        }
+
+        function editKeyType(keyId) {
+            const keyType = masterKeyTypes.find(k => k.id === keyId);
+            if (!keyType) return;
+
+            document.getElementById('keyFormSection').classList.remove('hidden');
+            document.getElementById('keyFormTitle').textContent = 'Edit Jenis Kunci';
+            document.getElementById('saveKeyBtn').textContent = 'Update';
+            
+            document.getElementById('keyId').value = keyType.id;
+            document.getElementById('keyName').value = keyType.name;
+            document.getElementById('keyGedung').value = keyType.gedung;
+            document.getElementById('keyLantai').value = keyType.lantai;
+            document.getElementById('keyStok').value = keyType.stok;
+            document.getElementById('keyKeterangan').value = keyType.keterangan;
+            
+            editingKeyId = keyId;
+        }
+
+        function deleteKeyType(keyId) {
+            // Check if key is currently being used
+            const isInUse = keyTransactions.some(t => t.jenisKunci === keyId && t.status === 'Dipinjam');
+            
+            if (isInUse) {
+                showNotification('Kunci sedang dipinjam, tidak dapat dihapus!', 'error');
+                return;
+            }
+            
+            if (confirm('Yakin ingin menghapus jenis kunci ini?')) {
+                masterKeyTypes = masterKeyTypes.filter(k => k.id !== keyId);
+                saveMasterKeyTypes();
+                populateMasterKeysTable();
+                populateKeyTypeDropdown();
+                showNotification('Jenis kunci berhasil dihapus!');
+            }
+        }
+
+        function saveKeyType(event) {
+            event.preventDefault();
+            
+            // Get building name
+            let gedungValue = document.getElementById('keyGedung').value;
+            if (gedungValue === 'custom') {
+                gedungValue = document.getElementById('customGedung').value;
+                if (!gedungValue) {
+                    showNotification('Nama gedung baru harus diisi!', 'error');
+                    return;
+                }
+            }
+            
+            const keyData = {
+                id: document.getElementById('keyId').value.toUpperCase(),
+                name: document.getElementById('keyName').value,
+                gedung: gedungValue,
+                lantai: document.getElementById('keyLantai').value || '-',
+                stok: parseInt(document.getElementById('keyStok').value),
+                keterangan: document.getElementById('keyKeterangan').value
+            };
+            
+            // Check if ID already exists (only for new keys)
+            if (!editingKeyId && masterKeyTypes.some(k => k.id === keyData.id)) {
+                showNotification('ID kunci sudah ada!', 'error');
+                return;
+            }
+            
+            if (editingKeyId) {
+                // Update existing key
+                const index = masterKeyTypes.findIndex(k => k.id === editingKeyId);
+                if (index !== -1) {
+                    masterKeyTypes[index] = keyData;
+                    showNotification('Jenis kunci berhasil diupdate!');
+                }
+            } else {
+                // Add new key
+                masterKeyTypes.push(keyData);
+                showNotification('Jenis kunci berhasil ditambahkan!');
+            }
+            
+            // Update building options if new building was added
+            updateBuildingOptions();
+            
+            saveMasterKeyTypes();
+            populateMasterKeysTable();
+            populateKeyTypeDropdown();
+            cancelKeyForm();
+        }
+
+        function updateBuildingOptions() {
+            // Get unique building names from masterKeyTypes
+            const uniqueBuildings = [...new Set(masterKeyTypes.map(k => k.gedung))];
+            
+            // Update all building dropdowns
+            const buildingSelects = ['keyGedung', 'filterGedung', 'logGedung'];
+            
+            buildingSelects.forEach(selectId => {
+                const select = document.getElementById(selectId);
+                if (!select) return;
+                
+                const currentValue = select.value;
+                const isKeyForm = selectId === 'keyGedung';
+                
+                // Clear existing options except the first one
+                while (select.children.length > 1) {
+                    select.removeChild(select.lastChild);
+                }
+                
+                // Add unique buildings
+                uniqueBuildings.forEach(building => {
+                    if (building && building !== 'custom') {
+                        const option = document.createElement('option');
+                        option.value = building;
+                        option.textContent = building;
+                        select.appendChild(option);
+                    }
+                });
+                
+                // Add custom option for key form
+                if (isKeyForm) {
+                    const customOption = document.createElement('option');
+                    customOption.value = 'custom';
+                    customOption.textContent = '+ Tambah Gedung Baru';
+                    select.appendChild(customOption);
+                }
+                
+                // Restore previous value if it still exists
+                if (currentValue && [...select.options].some(opt => opt.value === currentValue)) {
+                    select.value = currentValue;
+                }
+            });
+        }
+
+        function cancelKeyForm() {
+            document.getElementById('keyFormSection').classList.add('hidden');
+            document.getElementById('keyForm').reset();
+            document.getElementById('customGedung').classList.add('hidden');
+            document.getElementById('keyGedung').classList.remove('hidden');
+            editingKeyId = null;
+        }
+
+        function saveMasterKeyTypes() {
+            localStorage.setItem('masterKeyTypes', JSON.stringify(masterKeyTypes));
+        }
+
+        // Populate master keys table
+        function populateMasterKeysTable() {
+            const tbody = document.getElementById('masterKeysTableBody');
+            tbody.innerHTML = masterKeyTypes.map(keyType => {
+                const remainingStock = getRemainingStock(keyType.id);
+                return `
+                <tr class="hover:bg-gray-50">
+                    <td class="px-4 py-3 text-sm font-medium">${keyType.id}</td>
+                    <td class="px-4 py-3 text-sm">${keyType.name}</td>
+                    <td class="px-4 py-3 text-sm">
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${keyType.gedung === 'Andalusia' ? 'bg-blue-100 text-blue-800' : 'bg-green-100 text-green-800'}">
+                            ${keyType.gedung}
+                        </span>
+                    </td>
+                    <td class="px-4 py-3 text-sm">${keyType.lantai}</td>
+                    <td class="px-4 py-3 text-sm">
+                        <div class="flex items-center space-x-2">
+                            <span class="font-medium">${keyType.stok}</span>
+                            <span class="text-xs ${remainingStock > 0 ? 'text-green-600' : 'text-red-600'} font-medium">
+                                (Sisa: ${remainingStock})
+                            </span>
+                        </div>
+                    </td>
+                    <td class="px-4 py-3 text-sm text-gray-600">${keyType.keterangan}</td>
+                    <td class="px-4 py-3 text-sm">
+                        <div class="flex space-x-2">
+                            <button onclick="editKeyType('${keyType.id}')" class="text-blue-600 hover:text-blue-800 text-xs">
+                                ✏️ Edit
+                            </button>
+                            <button onclick="deleteKeyType('${keyType.id}')" class="text-red-600 hover:text-red-800 text-xs">
+                                🗑️ Hapus
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+                `;
+            }).join('');
+        }
+
+        // Reset forms
+        function resetBorrowForm() {
+            document.getElementById('borrowForm').reset();
+            document.getElementById('roomNumbersDiv').classList.add('hidden');
+            
+            // Uncheck all checkboxes
+            const checkboxes = document.querySelectorAll('#keyTypeCheckboxes input[type="checkbox"]');
+            checkboxes.forEach(checkbox => checkbox.checked = false);
+            
+            setCurrentDateTime();
+        }
+
+        function resetReturnForm() {
+            document.getElementById('returnForm').reset();
+            document.getElementById('returnDetails').classList.add('hidden');
+            setCurrentDateTime();
+        }
+
+        // Save data to localStorage
+        function saveData() {
+            localStorage.setItem('keyTransactions', JSON.stringify(keyTransactions));
+            localStorage.setItem('transactionCounter', transactionCounter.toString());
+        }
+
+        // Show notification
+        function showNotification(message, type = 'success') {
+            const notification = document.getElementById('notification');
+            const text = document.getElementById('notificationText');
+            const borderElement = notification.querySelector('.border-l-4');
+            const iconElement = notification.querySelector('svg');
+            
+            text.textContent = message;
+            
+            // Reset classes
+            borderElement.className = 'border-l-4 rounded-lg shadow-lg p-4 max-w-sm';
+            iconElement.className = 'w-5 h-5';
+            
+            // Apply type-specific styling
+            if (type === 'error') {
+                borderElement.classList.add('border-red-500');
+                iconElement.classList.add('text-red-500');
+                iconElement.innerHTML = '<path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>';
+            } else if (type === 'info') {
+                borderElement.classList.add('border-blue-500');
+                iconElement.classList.add('text-blue-500');
+                iconElement.innerHTML = '<path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path>';
+            } else {
+                borderElement.classList.add('border-green-500');
+                iconElement.classList.add('text-green-500');
+                iconElement.innerHTML = '<path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>';
+            }
+            
+            notification.classList.remove('hidden');
+            
+            // Auto hide after 5 seconds for success/info, 8 seconds for error
+            const hideDelay = type === 'error' ? 8000 : (type === 'info' ? 2000 : 5000);
+            setTimeout(() => {
+                hideNotification();
+            }, hideDelay);
+        }
+        
+        // Hide notification
+        function hideNotification() {
+            const notification = document.getElementById('notification');
+            notification.classList.add('hidden');
+        }
+
+        // Initialize app when page loads
+        document.addEventListener('DOMContentLoaded', initApp);
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'981756acb7cdf87b',t:'MTc1ODI2NjYxNi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
